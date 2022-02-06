@@ -1,0 +1,158 @@
+/*نام و کدپستی کتابخانه هایی که در شهر تهران واقع هستند*/
+
+select libraryname, libraryzipcode 
+from libraryes join libraryzipcodes
+on librarycity = 'Tehran';
+
+
+
+/*اسم کتاب ها و شابک ها و نویسنده آنها و مترجم های کتاب هایی که ترجمه شده اند*/
+SELECT bookname, isbn, author, translator
+FROM booknames
+WHERE translator != Null;
+
+/*کدملی و شماره کارمندی مدیری که کتابخانه اشرفی را مدیریت میکند*/
+select employeeid, employeenationalcode 
+from management join libraryes
+on libraryname = 'Ashrafi';
+
+
+/**/
+SET membernum = 100
+WHERE libraryname = 'Arghavan';
+SELECT membernum FROM libraryes
+WHERE libraryname = 'Arghavan';
+
+/**/
+SELECT employeeid, employeenationalcode 
+FROM librarian 
+JOIN employees 
+ON librarian.employeeid = employees.employeeid
+WHERE libraryname = 'Amirkabir';
+
+
+/**/
+SELECT membershipid, membershipdate, quitdate  
+FROM membership;
+
+
+/**/
+SELECT memebershipid, fine 
+FROM safekeeping JOIN bookid 
+ON  safekeeping.bookid = bookid.bookid 
+WHERE fine > 0;
+
+
+
+/**/
+select bookname, isbn 
+from booknames where booktopic ='Novel Fiction';
+
+
+/**/
+select bookname, booktopic, count(*) 
+from bookname join safekeeping on bookname.isbn = safekeeping.isbn 
+join bookides on safekeeping.bookid = bookid.bookid 
+group by bookName  order by count(*);
+
+
+/**/
+
+create view bsView(isbns , bookids, librarynamei)
+as 
+select isbn, bookid, libraryname
+from safekeeping
+where bookid = 4;
+
+
+/**/
+/*انتخاب شماره کارمندی کارمندهایی که در کتابخانه های شهر تهران و در بخش هنر فعالیت می کنند*/
+
+select employeeid from librarian 
+join libraryzipcodes on  responsibility = 'Art section' and librarycity = 'Tehran';
+
+
+/*آپدیت کردن تعداد اعضا کتابخانه*/
+
+create function updatemembernumber (newnum int, libname text)
+returns void
+as $$
+update libraryes set membernum = newnum where libraryname = libname;
+$$ language sql;
+
+select updateMemberNumber(120, 'Arghavan');
+
+
+/*تابع اضافه کردن عضو جدید*/
+
+create function insertMember (names text, fname text, nationalid numeric, membershipid int)
+returns void
+as $$
+insert into member values(name , fname, nationalid, membershipid)
+$$ language sql;
+
+
+
+
+/*تابع اضافه کردن کتاب جدید*/
+
+create function insertBookname (isbn numeric, bookname text, booktopic text, author text, translator text,
+								publisher text)
+returns void
+as $$
+insert into booknames values(isbn, bookname, booktopic, author, translator, publisher);
+$$ language sql;
+
+
+/*نام کتاب های نویسنده مورد نظر*/
+create function findBookByAuthorName (authorname text)
+returns text
+as $$
+select bookname from booknames where author = authorname;
+$$ language sql;
+
+select findBookByAuthorName ('John Green');
+
+
+
+/*آپدیت کردن موجودی کتاب ها*/
+
+create or replace function availableBookNumber (newBookNum int, isbne numeric)
+returns void
+as $$
+
+update Book set availableBookNum = newBookNum where isbn = isbne
+
+$$ language sql;
+
+
+/*شماره عضویت و تعداد کتاب هایی که تحویل گرفته*/
+
+SELECT membershipid, COUNT(bookid)
+FROM safekeeping
+where membershipid = 31178
+GROUP BY membershipid;
+
+
+
+
+/*اضافه کردن ستون bookname
+به جدول booknames*/
+
+alter table booknames
+add column bookname text;
+
+
+
+
+/*اسم کتاب هایی که نویسنده آنها جان گرین هست*/
+SELECT bookname 
+FROM booknames
+WHERE author = 'John Green';
+
+
+
+
+
+
+
